@@ -19,6 +19,6 @@ namespace HotelListing.Models
         public double Rating { get; set; }
 
         [Required]
-        public int CountryDTOId { get; set; }
+        public int CountryId { get; set; }
     }
 }
