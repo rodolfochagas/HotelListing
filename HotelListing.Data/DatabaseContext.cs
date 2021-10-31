@@ -1,4 +1,4 @@
-﻿using HotelListing.Configurations.Entities;
+﻿using HotelListing.Data.Configurations.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
