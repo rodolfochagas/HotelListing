@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
+using HotelListing.Core.DTOs;
+using HotelListing.Core.IRepository;
+using HotelListing.Core.Models;
 using HotelListing.Data;
-using HotelListing.IRepository;
-using HotelListing.Models;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HotelListing.Controllers
@@ -40,7 +39,7 @@ namespace HotelListing.Controllers
         {
             var countries = await _unitOfWork.Countries.GetAll(requestParams);
             var results = _mapper.Map<IList<CountryDTO>>(countries);
-            return Ok(results);   
+            return Ok(results);
         }
 
         [HttpGet("{id:int}", Name = "GetCountry")]
@@ -65,7 +64,7 @@ namespace HotelListing.Controllers
                 _logger.LogError($"Invalid POST attempt in {nameof(CreateCountry)}");
                 return BadRequest(ModelState);
             }
-            
+
             var country = _mapper.Map<Country>(createCountryDTO);
             await _unitOfWork.Countries.Insert(country);
             await _unitOfWork.Save();
@@ -80,19 +79,19 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCountry(int id, UpdateCountryDTO updateCountryDTO)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _logger.LogError("");
                 return BadRequest(ModelState);
             }
-            
+
             var country = await _unitOfWork.Countries.Get(c => c.Id == id);
 
             _mapper.Map(updateCountryDTO, country);
             _unitOfWork.Countries.Update(country);
             await _unitOfWork.Save();
 
-            return NoContent();    
+            return NoContent();
         }
     }
 }

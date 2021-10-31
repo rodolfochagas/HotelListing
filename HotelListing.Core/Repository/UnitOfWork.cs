@@ -1,9 +1,9 @@
-﻿using HotelListing.Data;
-using HotelListing.IRepository;
+﻿using HotelListing.Core.IRepository;
+using HotelListing.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace HotelListing.Repository
+namespace HotelListing.Core.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {

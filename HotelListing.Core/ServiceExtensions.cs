@@ -1,6 +1,6 @@
 ﻿using AspNetCoreRateLimit;
+using HotelListing.Core.Models;
 using HotelListing.Data;
-using HotelListing.Models;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -15,9 +15,10 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
-namespace HotelListing
+namespace HotelListing.Core
 {
     public static class ServiceExtensions
     {
@@ -59,7 +60,7 @@ namespace HotelListing
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     context.Response.ContentType = "application/json";
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    if(contextFeature != null)
+                    if (contextFeature != null)
                     {
                         Log.Error($"Something went wrong in the {contextFeature.Error}");
 
@@ -102,7 +103,7 @@ namespace HotelListing
         public static void ConfigureRateLimiting(this IServiceCollection services)
         {
             var rateLimitRules = new List<RateLimitRule>
-            { 
+            {
                 new RateLimitRule
                 {
                     Endpoint = "*",
@@ -119,6 +120,11 @@ namespace HotelListing
             services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+        }
+
+        public static void ConfigureAutoMapper(this IServiceCollection services)
+        {
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
         }
     }
 }

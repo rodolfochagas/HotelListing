@@ -1,8 +1,9 @@
-using HotelListing.Configurations;
+using AspNetCoreRateLimit;
+using HotelListing.Core;
+using HotelListing.Core.IRepository;
+using HotelListing.Core.Repository;
+using HotelListing.Core.Services;
 using HotelListing.Data;
-using HotelListing.IRepository;
-using HotelListing.Repository;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using AspNetCoreRateLimit;
 
 namespace HotelListing
 {
@@ -52,7 +52,7 @@ namespace HotelListing
                 )
             );
 
-            services.AddAutoMapper(typeof(MapperInitializer));
+            services.ConfigureAutoMapper();
 
             // Add transient means that whenever there's a new request to the controller, a new instance of this service will be created
             // Add scoped means that a new instance is created for the lifetime of certain requests
@@ -65,13 +65,14 @@ namespace HotelListing
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelListing", Version = "v1" });
             });
 
-            services.AddControllers(config => {
+            services.AddControllers(config =>
+            {
                 config.CacheProfiles.Add("120SecondsDuration", new CacheProfile
                 {
                     Duration = 120
                 });
-            }).AddNewtonsoftJson(option => 
-                option.SerializerSettings.ReferenceLoopHandling = 
+            }).AddNewtonsoftJson(option =>
+                option.SerializerSettings.ReferenceLoopHandling =
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.ConfigureApiVersioning();

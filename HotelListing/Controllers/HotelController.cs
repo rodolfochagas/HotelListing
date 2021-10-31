@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
+using HotelListing.Core.DTOs;
+using HotelListing.Core.IRepository;
 using HotelListing.Data;
-using HotelListing.IRepository;
-using HotelListing.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,7 +31,7 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotels()
-        {            
+        {
             var hotels = await _unitOfWork.Hotels.GetAll();
             var results = _mapper.Map<IList<HotelDTO>>(hotels);
             return Ok(results);
@@ -43,9 +42,9 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotelById(int id)
         {
-                var hotel = await _unitOfWork.Hotels.Get(h => h.Id == id, include: q => q.Include(x => x.Country));
-                var result = _mapper.Map<HotelDTO>(hotel);
-                return Ok(result);
+            var hotel = await _unitOfWork.Hotels.Get(h => h.Id == id, include: q => q.Include(x => x.Country));
+            var result = _mapper.Map<HotelDTO>(hotel);
+            return Ok(result);
         }
 
         [Authorize(Roles = "Administrator")]
@@ -80,18 +79,18 @@ namespace HotelListing.Controllers
                 _logger.LogError("");
                 return BadRequest(ModelState);
             }
-            
+
             var hotel = await _unitOfWork.Hotels.Get(h => h.Id == id);
             if (hotel == null)
             {
                 return BadRequest();
             }
-                
+
             _mapper.Map(updateHotelDTO, hotel);
             _unitOfWork.Hotels.Update(hotel);
             await _unitOfWork.Save();
 
-            return NoContent();    
+            return NoContent();
         }
 
         [Authorize]
@@ -99,17 +98,17 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteHotel (int id)
+        public async Task<IActionResult> DeleteHotel(int id)
         {
             var hotel = await _unitOfWork.Hotels.Get(h => h.Id == id);
-            if(hotel == null)
+            if (hotel == null)
             {
                 _logger.LogError("");
                 return BadRequest();
             }
             await _unitOfWork.Hotels.Delete(id);
             await _unitOfWork.Save();
-            return NoContent();       
+            return NoContent();
         }
     }
 }

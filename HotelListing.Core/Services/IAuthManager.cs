@@ -1,10 +1,7 @@
-﻿using HotelListing.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using HotelListing.Core.DTOs;
 using System.Threading.Tasks;
 
-namespace HotelListing.Services
+namespace HotelListing.Core.Services
 {
     public interface IAuthManager
     {

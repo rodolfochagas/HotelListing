@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using HotelListing.Core.DTOs;
+using HotelListing.Core.Services;
 using HotelListing.Data;
-using HotelListing.Models;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -73,11 +73,11 @@ namespace HotelListing.Controllers
             }
             try
             {
-                if(! await _authManager.ValidateUser(userLoginDTO))
+                if (!await _authManager.ValidateUser(userLoginDTO))
                 {
                     return Unauthorized(userLoginDTO);
                 }
-                return Accepted(new { Token = await _authManager.CreateToken()});
+                return Accepted(new { Token = await _authManager.CreateToken() });
             }
             catch (Exception ex)
             {

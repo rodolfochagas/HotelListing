@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HotelListing.Models
+namespace HotelListing.Core.DTOs
 {
     public class UserLoginDTO
     {

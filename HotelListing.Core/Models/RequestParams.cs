@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace HotelListing.Models
+﻿namespace HotelListing.Core.Models
 {
     public class RequestParams
     {
@@ -14,7 +9,7 @@ namespace HotelListing.Models
 
         public int PageSize
         {
-            get 
+            get
             {
                 return _pageSize;
             }
