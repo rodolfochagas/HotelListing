@@ -2,9 +2,11 @@
 using HotelListing.Data;
 using HotelListing.IRepository;
 using HotelListing.Models;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -29,21 +31,16 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet]
+        //It is possible to override the HttpCacheExpiration and HttpCacheValidation that were set up in the startup
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 65)]
+        [HttpCacheValidation(MustRevalidate = false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetContries()
+        public async Task<IActionResult> GetContries([FromQuery] RequestParams requestParams)
         {
-            try
-            {
-                var countries = await _unitOfWork.Countries.GetAll();
-                var results = _mapper.Map<IList<CountryDTO>>(countries);
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong with {nameof(GetContries)}");
-                return StatusCode(500, "Internal Server Error. Please try again later.");
-            }
+            var countries = await _unitOfWork.Countries.GetAll(requestParams);
+            var results = _mapper.Map<IList<CountryDTO>>(countries);
+            return Ok(results);   
         }
 
         [HttpGet("{id:int}", Name = "GetCountry")]
@@ -51,17 +48,9 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountryById(int id)
         {
-            try
-            {
-                var country = await _unitOfWork.Countries.Get(c => c.Id == id, new List<string> { "Hotels" });
-                var result = _mapper.Map<CountryDTO>(country);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong inside {nameof(GetCountryById)}");
-                return StatusCode(500, "Internal Server Error. Please try again later.");
-            }
+            var country = await _unitOfWork.Countries.Get(c => c.Id == id, include: q => q.Include(x => x.Hotels));
+            var result = _mapper.Map<CountryDTO>(country);
+            return Ok(result);
         }
 
         [Authorize(Roles = "Administrator")]
@@ -76,19 +65,12 @@ namespace HotelListing.Controllers
                 _logger.LogError($"Invalid POST attempt in {nameof(CreateCountry)}");
                 return BadRequest(ModelState);
             }
-            try
-            {
-                var country = _mapper.Map<Country>(createCountryDTO);
-                await _unitOfWork.Countries.Insert(country);
-                await _unitOfWork.Save();
+            
+            var country = _mapper.Map<Country>(createCountryDTO);
+            await _unitOfWork.Countries.Insert(country);
+            await _unitOfWork.Save();
 
-                return CreatedAtRoute("GetCountry", new { id = country.Id }, country);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong with {nameof(CreateCountry)}");
-                return StatusCode(500, "Internal Server Error. Please try again later.");
-            }
+            return CreatedAtRoute("GetCountry", new { id = country.Id }, country);
         }
 
         [Authorize]
@@ -103,22 +85,14 @@ namespace HotelListing.Controllers
                 _logger.LogError("");
                 return BadRequest(ModelState);
             }
-            try
-            {
-                var country = await _unitOfWork.Countries.Get(c => c.Id == id);
+            
+            var country = await _unitOfWork.Countries.Get(c => c.Id == id);
 
-                _mapper.Map(updateCountryDTO, country);
-                _unitOfWork.Countries.Update(country);
-                await _unitOfWork.Save();
+            _mapper.Map(updateCountryDTO, country);
+            _unitOfWork.Countries.Update(country);
+            await _unitOfWork.Save();
 
-                return NoContent();
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "");
-                return StatusCode(500, "");
-            }
+            return NoContent();    
         }
     }
 }
